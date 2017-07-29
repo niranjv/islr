@@ -1,5 +1,5 @@
 ---
-title: "Chapter 2, ISLR"
+title: "ISLR, Chapter 2"
 output: github_document
 ---
 
