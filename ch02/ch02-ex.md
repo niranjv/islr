@@ -1,4 +1,4 @@
-Chapter 2, ISLR
+ISLR, Chapter 2
 ================
 
 ### Exercise 1
@@ -162,14 +162,14 @@ summary(College)
 pairs(College[,1:10])
 ```
 
-![](ch02_files/figure-markdown_github-ascii_identifiers/Ex8-1.png)
+![](ch02-ex_files/figure-markdown_github-ascii_identifiers/Ex8-1.png)
 
 ``` r
 # Number of out-of-state students in public & private universities
 plot(College$Private, College$Outstate, col='grey', main="Out-of-state students in public/private universities", xlab="Private University", ylab="# Out-of-state students")
 ```
 
-![](ch02_files/figure-markdown_github-ascii_identifiers/Ex8-2.png)
+![](ch02-ex_files/figure-markdown_github-ascii_identifiers/Ex8-2.png)
 
 ``` r
 # Create new covariate to classify universities as Elite
@@ -198,7 +198,7 @@ table(College$elite, College$Private)
 plot(College$elite, College$Outstate, col="grey", main="Out-of-state students in elite universities", xlab="Elite University", ylab="# Out-of-state students")
 ```
 
-![](ch02_files/figure-markdown_github-ascii_identifiers/Ex8-3.png)
+![](ch02-ex_files/figure-markdown_github-ascii_identifiers/Ex8-3.png)
 
 ``` r
 PrivateElite = paste(ifelse(College$Private=="Yes", "Prv", "Pub"), '-', ifelse(College$elite =="Yes", "Elt", "N-Elt"))
@@ -207,7 +207,7 @@ par(mar = c(7,7,4,2))
 boxplot(College$Outstate ~ PrivateElite, col="grey", main="Out-of-state students by university type", las=2)
 ```
 
-![](ch02_files/figure-markdown_github-ascii_identifiers/Ex8-4.png)
+![](ch02-ex_files/figure-markdown_github-ascii_identifiers/Ex8-4.png)
 
 ``` r
 par.old = par
@@ -221,7 +221,7 @@ for (i in 2:18) {
 par = par.old
 ```
 
-![](ch02_files/figure-markdown_github-ascii_identifiers/Ex8-5.png)
+![](ch02-ex_files/figure-markdown_github-ascii_identifiers/Ex8-5.png)
 
 ``` r
 par(mfrow=c(2,2))
@@ -231,7 +231,7 @@ boxplot(College$S.F.Ratio ~ College$Private, main="Student/Faculty ratio", xlab=
 boxplot(College$Grad.Rate ~ College$Private, main="Graduation rate", xlab="Private university?", col='grey')
 ```
 
-![](ch02_files/figure-markdown_github-ascii_identifiers/Ex8:findings1-1.png)
+![](ch02-ex_files/figure-markdown_github-ascii_identifiers/Ex8:findings1-1.png)
 
 **Findings:**
 
@@ -246,13 +246,13 @@ plot(College$Expend, College$Grad.Rate, main="Does student expenditure \naffect 
 lines(lowess(College$Expend, College$Grad.Rate), col='red', lwd=2)
 ```
 
-![](ch02_files/figure-markdown_github-ascii_identifiers/Ex8-findings2-1.png)
+![](ch02-ex_files/figure-markdown_github-ascii_identifiers/Ex8-findings2-1.png)
 
 ``` r
 plot(College$perc.alumni ~ as.factor(PrivateElite), col='grey', main="Who donates more?", xlab="University type", ylab="% alumni who donate")
 ```
 
-![](ch02_files/figure-markdown_github-ascii_identifiers/Ex8-findings2-2.png)
+![](ch02-ex_files/figure-markdown_github-ascii_identifiers/Ex8-findings2-2.png)
 
 **Findings:**
 
@@ -320,7 +320,7 @@ for (i in 1:(ncol(A2)-1)) {
 pairs(Auto, pch=15, cex=0.6)
 ```
 
-![](ch02_files/figure-markdown_github-ascii_identifiers/Ex9-findings2-1.png)
+![](ch02-ex_files/figure-markdown_github-ascii_identifiers/Ex9-findings2-1.png)
 
 ``` r
 par(mfrow=c(3,3))
@@ -332,7 +332,7 @@ for (i in 2:(ncol(Auto)-1)) {
 }
 ```
 
-![](ch02_files/figure-markdown_github-ascii_identifiers/Ex9-findings2-2.png)
+![](ch02-ex_files/figure-markdown_github-ascii_identifiers/Ex9-findings2-2.png)
 
 **Findings**
 
@@ -373,7 +373,7 @@ dim(Boston)
 pairs(Boston)
 ```
 
-![](ch02_files/figure-markdown_github-ascii_identifiers/Ex10-1.png)
+![](ch02-ex_files/figure-markdown_github-ascii_identifiers/Ex10-1.png)
 
 ``` r
 # Median house value vs. other covariates
@@ -394,7 +394,7 @@ par(mfrow=c(4,4), height=6, width=6)
     ## Warning in par(mfrow = c(4, 4), height = 6, width = 6): "width" is not a
     ## graphical parameter
 
-![](ch02_files/figure-markdown_github-ascii_identifiers/Ex10-2.png)
+![](ch02-ex_files/figure-markdown_github-ascii_identifiers/Ex10-2.png)
 
 ``` r
 for (i in 2:(ncol(Boston)-1)) {
@@ -404,7 +404,7 @@ for (i in 2:(ncol(Boston)-1)) {
 }
 ```
 
-![](ch02_files/figure-markdown_github-ascii_identifiers/Ex10-3.png)
+![](ch02-ex_files/figure-markdown_github-ascii_identifiers/Ex10-3.png)
 
 #### Association with per-capita crime rate
 

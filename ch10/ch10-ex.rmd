@@ -1,0 +1,59 @@
+---
+title: "ISLR, Chapter 10"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### Explore `USArrests`
+
+```{r USArrests}
+
+# Columns
+# 
+# Murder - Murder arrests (per 100,000)
+# Assault -	Assault arrests (per 100,000)
+# UrbanPop - Percent urban population
+# Rape - Rape arrests (per 100,000)
+
+dim(USArrests)
+names(USArrests)
+
+# Crime rates across all states - mean & sd
+apply(USArrests, 2, mean)
+apply(USArrests, 2, var)
+
+# UrbanPop is not comparable to other covariates which are measured per 100,000 individuals
+# UrbanPop also has very high variance compared to other covariates and will dominate the PCs
+# Solution is to scale all covariates to have mean 0 and variance 1
+pairs(USArrests, lower.panel=NULL)
+
+# mean-centering is performed by default
+# scale=TRUE => scale to have sd = 1
+pr.out <- prcomp(USArrests, scale=TRUE) 
+dim(pr.out)
+names(pr.out)
+# [1] "sdev"     "rotation" "center"   "scale"    "x"    
+# 
+# rotation = matrix of PC loadings, i.e., weights by which each covariate must be multiplied to get PC
+# x = PC score vectors as columns, i.e., rotation x data
+
+biplot(pr.out, scale=0)
+
+# Variance explained by each PC
+v = pr.out$sdev^2
+v
+
+# Fraction of variance explained by each PC
+pve = v/sum(v)
+
+par(mfrow=c(1,2))
+plot(pve, main="Fraction of variance \nexplained by each PC", xlab="PC", ylab="", ylim=c(0,1), pch=15, type='b')
+
+plot(cumsum(pve), main="Cumulative fraction of \nvariance explained by each PC", xlab="PC", ylab="", ylim=c(0,1), pch=15, type='b')
+
+
+```
+
