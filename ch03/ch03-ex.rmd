@@ -14,6 +14,7 @@ knitr::opts_chunk$set(echo = TRUE)
 * **radio** - Does radio advertising have an impact on sales (Yes; 189 additional units sold for every $1000 spent on radio ads)
 * **newspaper** - Does newspaper advertising have an impact on sales (No; p-value = 0.86)
 
+---
 
 ### Exercise 2
 Difference between KNN classification vs. KNN regression:
@@ -22,6 +23,7 @@ Difference between KNN classification vs. KNN regression:
 
 **KNN regression** - Used to predict the response of a point from its covariates. From the labelled training set, select the `K` nearest neighbors in covariate space. The response of the point to predict is the average of the response of these `K` points.
 
+---
 
 ### Exercise 3
 
@@ -48,3 +50,224 @@ Males earn more than females on average only the fixed GPA is > 3.5
 
 *c:* Support for interaction effect is provided by its associated p-value. If p-value is low, then there is evidence for an interaction effect. Also, since scale of IQ is much larger than that of the other covariates(1-100+ vs 1-4 & 0-1), the coefficient for interaction will be small.
 
+---
+
+### Exercise 4
+
+*a:* Training RSS will be lower with the more complex cubic model since it can fit the data better (low bias, high variance model)
+
+*b:* Test RSS is likely to be higher for the more complex cubic model due to overfitting.
+
+*c:* Training RSS will still be lower for the more complex cubic model.
+
+*d:* Not enough info to determine whether test RSS will be higher for more complex cubic model or not. If the true relationship is quadratic, then test RSS can be similar to the linear and cubic model. (?)
+
+---
+
+### Exercise 5
+
+---
+
+### Exercise 6
+
+---
+
+### Exercise 7
+
+---
+
+### Exercise 8
+
+Simple linear regression on `Auto` data set
+
+*(i):* There is a relationship between `mpg` and `horsepower` with `mpg` decreasing non-linearly with increase in horsepower. 
+
+```{r Ex8-1}
+library(ISLR)
+
+plot(Auto$mpg ~ Auto$horsepower, xlab="horsepower", ylab="mpg")
+lines(lowess(Auto$mpg ~ Auto$horsepower), col='red', lwd=3)
+```
+
+*(ii):* Correlation (strength & direction of linear relationship) between the 2 is:
+
+```{r Ex8-2} 
+cor(Auto$mpg, Auto$horsepower) 
+```
+
+which is quite strong. Also, p-value for coefficient for `horsepower` is very low, suggesting that `mpg` does depend on `horsepower`.
+
+*(iii):* The relationship is negative: `mpg` decreases as `horsepower` increases. This can be determined from the sign of the correlation and also from the sign of the coefficient for horsepower in the linear model below. 
+
+*(iv):* For `horsepower = 98`, predicted values with 95% intervals are:
+
+```{r Ex8-3}
+m <- lm(Auto$mpg ~ Auto$horsepower)
+m
+
+summary(m)
+
+# predict(m, data.frame(horsepower=c(98)), interval="confidence")
+# predict(m, data.frame(horsepower=c(98)), interval="prediction")
+```
+
+When `horsepower = 98`, predicted `mpg = 24.47`. 95% confidence interval is `(23.97, 24.96)` and 95% prediction interval is `(14.81, 34.13)`
+
+
+*b:* The linear model is not a good fit for the data. The `lowess` line shows the fit of a non-parametric regression model that fits the data a lot better.
+
+```{r Ex8-4}
+plot(Auto$mpg ~ Auto$horsepower, xlab="horsepower", ylab="mpg")
+lines(lowess(Auto$mpg ~ Auto$horsepower), col='red', lwd=3)
+abline(m, col='blue', lwd=3)
+legend("topright", c("Lowess line", "Linear model"), col=c("red", "blue"), lwd=3)
+```
+
+*c:* From the linear regression diagnostic plots below, we see that there is a definite pattern in the `residuals vs. fitted values` plot, suggesting that the simple linear model above is not a good fit for the data.
+
+```{r Ex8-5}
+par(mfrow=c(2,2))
+plot(m)
+```
+
+---
+
+### Exercise 9
+
+Multiple liner regression on `Auto` data set
+* Convert `origin` from number to factor
+* Exlcude `name` from scatterplot matrix of variables
+
+*a:*
+```{r Ex9-1}
+plot(Auto[,-ncol(Auto)])
+```
+* `mpg` decreases with `cylinders`, `displacement`, `horsepower` & `weight`
+* `mpg` increases with `acceleration`, `year` and  `origin` (Japanese > European > American)
+
+*b:* 
+
+```{r}
+round(cor(Auto[,-c(8,9)]), 2)
+```
+
+*c:* 
+
+```{r}
+
+m <- lm(mpg ~ .-name, data=Auto)
+summary(m)
+
+```
+
+* There is a relationship between `mpg` and covariates since p-values for the model coefficients for `displacement`, `weight`, `year` and `origin` and << 0.05. 
+* Coefficient for `year` suggests that `mpg` increases by 0.78 per year.
+
+*d:* 
+
+```{r}
+par(mfrow=c(2,2))
+plot(m)
+```
+
+* Residuals vs. fitted values plot shows a non-linear relationship between response and covariates
+* A few points with large estimates for `mpg` are marked as outliers `(323, 326, 327)`
+* Residuals vs. Leverage plot also marks point `14` as having high leverage
+
+*e:*
+
+```{r}
+m2 <- lm(mpg ~ (.-name)*(.-name), data=Auto)
+summary(m2)
+```
+
+Covariates & interactions significant at the 5% level are:
+
+* `acceleration`
+* `origin2`
+* `origin3`
+* `acceleration:cylinders`
+* `acceleration:year`
+* `acceleration:origin2`
+* `acceleration:origin3`
+* `year:origin2`
+* `year:origin3`
+
+*f:*
+
+`TODO`
+
+---
+
+### Exercise 10
+
+
+---
+
+### Exercise 11
+
+---
+
+### Exercise 12
+
+---
+
+### Exercise 13
+
+---
+
+### Exercise 14
+
+---
+
+### Exercise 15
+
+*a:* Simple linear regression of`crim` vs. each covariate. When fitting a linear model of `crim` against each of the covariates separately, all covariates are associsted with `crim` (p-value < 0.05 for model coefficient term for covariate). The plots below show how `crim` changes with each covariate.
+
+```{r Ex15-1}
+library(MASS)
+data(Boston)
+
+m1.coef <- vector(mode="numeric", length=length(names(Boston)) - 1)
+
+for (i in 2:length(Boston)) {
+  plot(Boston[,1] ~ Boston[,i], xlab=names(Boston)[i], ylab=names(Boston)[1])
+  
+  m <- lm(Boston[,1] ~ Boston[,i])
+  
+  cf = names(Boston)[i]
+  cfsum = summary(m)$coefficients
+  
+  m1.coef[i-1] <- cfsum[2,1]
+  ifelse(cfsum[2,4] < 0.05, print(paste(cf, ': YES')), print(paste(cf, ': NO')) )
+}
+
+```
+
+*b:* Multiple linear regression of `crim` vs. all covariates. 
+
+From the model summary, only the covariates below are statistically significant, so we can reject the null hypothesis `H_0: B_j = 0`
+
+* `zn`
+* `dis`
+* `rad`
+* `black`
+* `medv`
+
+```{r Ex15-2}
+
+m2 <- lm(crim ~ .-crim, data=Boston)
+summary(m2)
+
+m2.coef = coef(m2)[-1]
+```
+
+*c:* More covariates are statistically significant when `crim` is regressed separately against each of them separately. Coefficient for `nox` is very different between the 2 models. Coefficients for other covariates are more similar in comparison.
+
+```{r Ex15-3}
+df <- cbind(m1.coef, m2.coef)
+plot(df, main='Model Coefficient comparison', xlab='Simple Linear Regression', ylab='Multiple Linear Regression')
+
+plot(df, main='Model Coefficient comparison (zoom)', xlab='Simple Linear Regression', ylab='Multiple Linear Regression', xlim=c(-3,3), ylim=c(-1.1,1.1), pch=16)
+
+```
