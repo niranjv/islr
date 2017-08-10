@@ -322,17 +322,617 @@ Covariates & interactions significant at the 5% level are:
 
 ### Exercise 10
 
+*a:* Multiple regression model for `Sales`
+
+``` r
+library(ISLR)
+data(Carseats)
+
+m <- lm(Sales ~ Price + Urban + US, data=Carseats)
+summary(m)
+```
+
+    ## 
+    ## Call:
+    ## lm(formula = Sales ~ Price + Urban + US, data = Carseats)
+    ## 
+    ## Residuals:
+    ##     Min      1Q  Median      3Q     Max 
+    ## -6.9206 -1.6220 -0.0564  1.5786  7.0581 
+    ## 
+    ## Coefficients:
+    ##              Estimate Std. Error t value Pr(>|t|)    
+    ## (Intercept) 13.043469   0.651012  20.036  < 2e-16 ***
+    ## Price       -0.054459   0.005242 -10.389  < 2e-16 ***
+    ## UrbanYes    -0.021916   0.271650  -0.081    0.936    
+    ## USYes        1.200573   0.259042   4.635 4.86e-06 ***
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Residual standard error: 2.472 on 396 degrees of freedom
+    ## Multiple R-squared:  0.2393, Adjusted R-squared:  0.2335 
+    ## F-statistic: 41.52 on 3 and 396 DF,  p-value: < 2.2e-16
+
+``` r
+par(mfrow=c(2,2))
+plot(m)
+```
+
+![](ch03-ex_files/figure-markdown_github-ascii_identifiers/Ex10-a-1.png)
+
+``` r
+par(mfrow=c(1,1))
+```
+
+*b:* Coefficient interpretation
+
+-   *β*<sub>0</sub> represents baseline sales and is significant at the 5% level
+-   *β*<sub>1</sub> represent effect of price on sales and is significant at the 5% level. For every $100 increase in price, sales drop by 5400 units
+-   *β*<sub>2</sub> represents effect of store location on sales. Urban store location contribute to a decrease of 22 units compared to a rural store location.
+-   *β*<sub>3</sub> represents effect of country location on sales. Stores located in the US have increased sales of 1200 units compared to stores located outside the US.
+
+*c:* Linear model fit above is:
+
+*S**a**l**e**s* = 13.04 − 0.055 ⋅ *P**r**i**c**e* − 0.022 ⋅ *U**r**b**a**n* + 1.2 ⋅ *U**S* + *ϵ*
+
+Coding:
+
+-   `Urban` = 1 if store is in an urban location, 0 otherwise
+-   `US` = 1 if store is located in the US, 0 otherwise
+
+*d:* Null hypothesis of *H*<sub>0</sub> : *β*<sub>*j*</sub> = 0 can be rejected for *β*<sub>0</sub> (intercept), *β*<sub>1</sub> (Price) and *β*<sub>3</sub> (US) since their p-values are &lt; 0.05
+
+*e* Smaller model
+
+``` r
+m <- lm(Sales ~ Price + US, data=Carseats)
+summary(m)
+```
+
+    ## 
+    ## Call:
+    ## lm(formula = Sales ~ Price + US, data = Carseats)
+    ## 
+    ## Residuals:
+    ##     Min      1Q  Median      3Q     Max 
+    ## -6.9269 -1.6286 -0.0574  1.5766  7.0515 
+    ## 
+    ## Coefficients:
+    ##             Estimate Std. Error t value Pr(>|t|)    
+    ## (Intercept) 13.03079    0.63098  20.652  < 2e-16 ***
+    ## Price       -0.05448    0.00523 -10.416  < 2e-16 ***
+    ## USYes        1.19964    0.25846   4.641 4.71e-06 ***
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Residual standard error: 2.469 on 397 degrees of freedom
+    ## Multiple R-squared:  0.2393, Adjusted R-squared:  0.2354 
+    ## F-statistic: 62.43 on 2 and 397 DF,  p-value: < 2.2e-16
+
+``` r
+par(mfrow=c(2,2))
+plot(m)
+```
+
+![](ch03-ex_files/figure-markdown_github-ascii_identifiers/Ex10-e-1.png)
+
+``` r
+par(mfrow=c(1,1))
+```
+
+*f:* Comparison of model fit:
+
+-   Model 1: RSS = 2.472, ad R^2 = 0.2335
+-   Model 2: RSS = 2.469, adj R^2 = 0.2354
+
+Model fit is similar for both models.
+
+*g:* Approx 95% CI for model coefficients in model 2:
+
+``` r
+ paste('intercept: (', round(coefficients(summary(m))[1,1] - 1.96*coefficients(summary(m))[1,2],3), ',', round(coefficients(summary(m))[1,1] + 1.96*coefficients(summary(m))[1,2],3), ')', sep='')
+```
+
+    ## [1] "intercept: (11.794,14.268)"
+
+``` r
+paste('Price: (', round(coefficients(summary(m))[2,1] - 1.96*coefficients(summary(m))[2,2],3), ',', round(coefficients(summary(m))[2,1] + 1.96*coefficients(summary(m))[2,2],3), ')', sep='')
+```
+
+    ## [1] "Price: (-0.065,-0.044)"
+
+``` r
+paste('US: (', round(coefficients(summary(m))[3,1] - 1.96*coefficients(summary(m))[3,2],3), ',', round(coefficients(summary(m))[3,1] + 1.96*coefficients(summary(m))[3,2],3), ')', sep='')
+```
+
+    ## [1] "US: (0.693,1.706)"
+
+``` r
+# 95% CI can also be calculated by:
+confint(m)
+```
+
+    ##                   2.5 %      97.5 %
+    ## (Intercept) 11.79032020 14.27126531
+    ## Price       -0.06475984 -0.04419543
+    ## USYes        0.69151957  1.70776632
+
+*h:* Based on model diagnostics plots:
+
+-   Outliers: Observations 51, 69, 377
+-   High leverage observations: 1 obs seems to have high leverage
+
 ------------------------------------------------------------------------
 
 ### Exercise 11
+
+Generate simulated data:
+
+``` r
+set.seed (1)
+x <- rnorm(100)
+y <- 2*x+rnorm(100)
+```
+
+*a:* Model without intercept
+
+``` r
+mxy <- lm(y ~ x - 1)
+summary(mxy)
+```
+
+    ## 
+    ## Call:
+    ## lm(formula = y ~ x - 1)
+    ## 
+    ## Residuals:
+    ##     Min      1Q  Median      3Q     Max 
+    ## -1.9154 -0.6472 -0.1771  0.5056  2.3109 
+    ## 
+    ## Coefficients:
+    ##   Estimate Std. Error t value Pr(>|t|)    
+    ## x   1.9939     0.1065   18.73   <2e-16 ***
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Residual standard error: 0.9586 on 99 degrees of freedom
+    ## Multiple R-squared:  0.7798, Adjusted R-squared:  0.7776 
+    ## F-statistic: 350.7 on 1 and 99 DF,  p-value: < 2.2e-16
+
+``` r
+coef(summary(mxy))
+```
+
+    ##   Estimate Std. Error  t value     Pr(>|t|)
+    ## x 1.993876  0.1064767 18.72593 2.642197e-34
+
+-   Coefficient for `x` is significant at the 5% level. Std error is small relative to estimate =&gt; 95% CI is narrow.
+
+*b:* Model with intercept
+
+``` r
+myx <- lm(x ~ y -1)
+summary(myx)
+```
+
+    ## 
+    ## Call:
+    ## lm(formula = x ~ y - 1)
+    ## 
+    ## Residuals:
+    ##     Min      1Q  Median      3Q     Max 
+    ## -0.8699 -0.2368  0.1030  0.2858  0.8938 
+    ## 
+    ## Coefficients:
+    ##   Estimate Std. Error t value Pr(>|t|)    
+    ## y  0.39111    0.02089   18.73   <2e-16 ***
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Residual standard error: 0.4246 on 99 degrees of freedom
+    ## Multiple R-squared:  0.7798, Adjusted R-squared:  0.7776 
+    ## F-statistic: 350.7 on 1 and 99 DF,  p-value: < 2.2e-16
+
+``` r
+coef(summary(myx))
+```
+
+    ##    Estimate Std. Error  t value     Pr(>|t|)
+    ## y 0.3911145 0.02088625 18.72593 2.642197e-34
+
+-   Coefficient for `y` is significant at the 5% level. Std error is small relative to estimate =&gt; 95% CI is narrow.
+
+*c:* *β* in `mxy` should be inverse of that in `myx` but this is only approximately true. Adj R^2 for both models is the same, but RSE for `mxy` is more than double that of `myx`.
+
+*d:* TODO
+
+*e:* `n` is the same in both models. The t-statistic shown above is symmetric in `x` and `y`, so it will be the same whether `x` is regressed onto `y` or vice versa.
+
+*f:* T-statistic for *β*<sub>1</sub> is the same in both models below
+
+``` r
+mxy <- lm(x ~ y)
+t1 <- coef(summary(mxy))[2,3]
+t1
+```
+
+    ## [1] 18.5556
+
+``` r
+myx <- lm(y ~ x)
+t2 <- coef(summary(myx))[2,3]
+t2
+```
+
+    ## [1] 18.5556
+
+``` r
+ abs(t1-t2) < 1e6
+```
+
+    ## [1] TRUE
 
 ------------------------------------------------------------------------
 
 ### Exercise 12
 
+*a:* Estimates for *β* for `Y ~ X` and `X ~ Y` are equal when denominators of (3.38) are equal (i.e., when `X = Y`)
+
+*b:* Estimates for *β* in the 2 models below are different
+
+``` r
+set.seed(1) 
+x <- rnorm(100)
+y <- x + rnorm(100)
+
+plot(x, y)
+```
+
+![](ch03-ex_files/figure-markdown_github-ascii_identifiers/Ex12-b-1.png)
+
+``` r
+myx <- lm(y ~ x - 1)
+summary(myx)
+```
+
+    ## 
+    ## Call:
+    ## lm(formula = y ~ x - 1)
+    ## 
+    ## Residuals:
+    ##     Min      1Q  Median      3Q     Max 
+    ## -1.9154 -0.6472 -0.1771  0.5056  2.3109 
+    ## 
+    ## Coefficients:
+    ##   Estimate Std. Error t value Pr(>|t|)    
+    ## x   0.9939     0.1065   9.334  3.1e-15 ***
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Residual standard error: 0.9586 on 99 degrees of freedom
+    ## Multiple R-squared:  0.4681, Adjusted R-squared:  0.4627 
+    ## F-statistic: 87.13 on 1 and 99 DF,  p-value: 3.1e-15
+
+``` r
+mxy <- lm(x ~ y - 1)
+summary(mxy)
+```
+
+    ## 
+    ## Call:
+    ## lm(formula = x ~ y - 1)
+    ## 
+    ## Residuals:
+    ##      Min       1Q   Median       3Q      Max 
+    ## -1.35410 -0.37468  0.09974  0.48799  1.55406 
+    ## 
+    ## Coefficients:
+    ##   Estimate Std. Error t value Pr(>|t|)    
+    ## y  0.47099    0.05046   9.334  3.1e-15 ***
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Residual standard error: 0.6599 on 99 degrees of freedom
+    ## Multiple R-squared:  0.4681, Adjusted R-squared:  0.4627 
+    ## F-statistic: 87.13 on 1 and 99 DF,  p-value: 3.1e-15
+
+*c:* Estimates for *β* in 2 models below are the same
+
+``` r
+set.seed(1) 
+x <- rnorm(100)
+y <- x
+
+plot(x, y)
+```
+
+![](ch03-ex_files/figure-markdown_github-ascii_identifiers/Ex12-c-1.png)
+
+``` r
+myx <- lm(y ~ x - 1)
+summary(myx)
+```
+
+    ## Warning in summary.lm(myx): essentially perfect fit: summary may be
+    ## unreliable
+
+    ## 
+    ## Call:
+    ## lm(formula = y ~ x - 1)
+    ## 
+    ## Residuals:
+    ##        Min         1Q     Median         3Q        Max 
+    ## -1.888e-16 -1.689e-17  1.339e-18  3.057e-17  2.552e-16 
+    ## 
+    ## Coefficients:
+    ##    Estimate Std. Error   t value Pr(>|t|)    
+    ## x 1.000e+00  6.479e-18 1.543e+17   <2e-16 ***
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Residual standard error: 5.833e-17 on 99 degrees of freedom
+    ## Multiple R-squared:      1,  Adjusted R-squared:      1 
+    ## F-statistic: 2.382e+34 on 1 and 99 DF,  p-value: < 2.2e-16
+
+``` r
+mxy <- lm(x ~ y - 1)
+summary(mxy)
+```
+
+    ## Warning in summary.lm(mxy): essentially perfect fit: summary may be
+    ## unreliable
+
+    ## 
+    ## Call:
+    ## lm(formula = x ~ y - 1)
+    ## 
+    ## Residuals:
+    ##        Min         1Q     Median         3Q        Max 
+    ## -1.888e-16 -1.689e-17  1.339e-18  3.057e-17  2.552e-16 
+    ## 
+    ## Coefficients:
+    ##    Estimate Std. Error   t value Pr(>|t|)    
+    ## y 1.000e+00  6.479e-18 1.543e+17   <2e-16 ***
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Residual standard error: 5.833e-17 on 99 degrees of freedom
+    ## Multiple R-squared:      1,  Adjusted R-squared:      1 
+    ## F-statistic: 2.382e+34 on 1 and 99 DF,  p-value: < 2.2e-16
+
 ------------------------------------------------------------------------
 
 ### Exercise 13
+
+*a:*
+
+``` r
+x <- rnorm(100)
+```
+
+*b:*
+
+``` r
+eps <- rnorm(100, 0, sd=sqrt(0.25))
+```
+
+*c:*
+
+``` r
+y <- -1 + 0.5*x + eps
+```
+
+-   Length of `y` is 100
+-   *β*<sub>0</sub> = −1, *β*<sub>1</sub> = 0.5
+
+*d:* As expected, `y` is randomly distributed around `0.5 x`
+
+``` r
+plot(x, y)
+```
+
+![](ch03-ex_files/figure-markdown_github-ascii_identifiers/Ex13-d-1.png)
+
+``` r
+cor(x, y)
+```
+
+    ## [1] 0.659647
+
+*e:*
+
+``` r
+m <- lm(y ~ x)
+summary(m)
+```
+
+    ## 
+    ## Call:
+    ## lm(formula = y ~ x)
+    ## 
+    ## Residuals:
+    ##      Min       1Q   Median       3Q      Max 
+    ## -1.47403 -0.23074  0.00645  0.32510  1.30869 
+    ## 
+    ## Coefficients:
+    ##             Estimate Std. Error t value Pr(>|t|)    
+    ## (Intercept) -0.98617    0.05195 -18.982  < 2e-16 ***
+    ## x            0.47326    0.05447   8.689 8.43e-14 ***
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Residual standard error: 0.5191 on 98 degrees of freedom
+    ## Multiple R-squared:  0.4351, Adjusted R-squared:  0.4294 
+    ## F-statistic: 75.49 on 1 and 98 DF,  p-value: 8.429e-14
+
+Estimates of *β*<sub>0</sub> and *β*<sub>1</sub> are close to their true values. Std errors for these estimates are small. And both coefficients are statistically significant at the 5% level.
+
+*f:*
+
+``` r
+plot(x,y)
+abline(m, col='red', lwd=2)
+
+df <- data.frame(x, y)
+df <- df[order(df[,1]),]
+lines(df$x, -1 + 0.5*df$x, col='blue', lwd=2, lty='dotted')
+legend("bottomright", legend=c('linear model', 'pop. regr. line'), col=c('red', 'blue'), lwd=2)
+```
+
+![](ch03-ex_files/figure-markdown_github-ascii_identifiers/Ex13-f-1.png)
+
+*g:*
+
+``` r
+m1 <- lm(y ~ x + I(x^2))
+summary(m1)
+```
+
+    ## 
+    ## Call:
+    ## lm(formula = y ~ x + I(x^2))
+    ## 
+    ## Residuals:
+    ##      Min       1Q   Median       3Q      Max 
+    ## -1.44942 -0.26882  0.02068  0.30745  1.36804 
+    ## 
+    ## Coefficients:
+    ##             Estimate Std. Error t value Pr(>|t|)    
+    ## (Intercept) -1.04772    0.06673 -15.702  < 2e-16 ***
+    ## x            0.44980    0.05650   7.961 3.24e-12 ***
+    ## I(x^2)       0.06668    0.04575   1.457    0.148    
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Residual standard error: 0.5162 on 97 degrees of freedom
+    ## Multiple R-squared:  0.4472, Adjusted R-squared:  0.4358 
+    ## F-statistic: 39.24 on 2 and 97 DF,  p-value: 3.26e-13
+
+``` r
+anova(m, m1)
+```
+
+    ## Analysis of Variance Table
+    ## 
+    ## Model 1: y ~ x
+    ## Model 2: y ~ x + I(x^2)
+    ##   Res.Df    RSS Df Sum of Sq      F Pr(>F)
+    ## 1     98 26.410                           
+    ## 2     97 25.844  1   0.56581 2.1236 0.1483
+
+In this model, the coefficient for *x*<sup>2</sup> is not significant at the 5% level. `RSE` and Adjusted *R*<sup>2</sup> are similar for both models. ANOVA of both models suggests that *x*<sup>2</sup> does not significant decrease RSS. So *x*<sup>2</sup> has no impact on the model.
+
+*h:*
+
+``` r
+eps <- rnorm(100, 0, sd=sqrt(0.1))
+y <- -1 + 0.5*x + eps
+
+m2 <- lm(y ~ x)
+summary(m2)
+```
+
+    ## 
+    ## Call:
+    ## lm(formula = y ~ x)
+    ## 
+    ## Residuals:
+    ##      Min       1Q   Median       3Q      Max 
+    ## -0.82723 -0.17712 -0.01984  0.20496  0.59037 
+    ## 
+    ## Coefficients:
+    ##             Estimate Std. Error t value Pr(>|t|)    
+    ## (Intercept) -0.98441    0.03149  -31.26   <2e-16 ***
+    ## x            0.48087    0.03301   14.57   <2e-16 ***
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Residual standard error: 0.3147 on 98 degrees of freedom
+    ## Multiple R-squared:  0.684,  Adjusted R-squared:  0.6808 
+    ## F-statistic: 212.2 on 1 and 98 DF,  p-value: < 2.2e-16
+
+``` r
+plot(x, y, main="Less Noise")
+abline(m2, col='red', lwd=2)
+
+df <- data.frame(x, y)
+df <- df[order(df[,1]),]
+lines(df$x, -1 + 0.5*df$x, col='blue', lwd=2, lty='dotted')
+legend("bottomright", legend=c('linear model', 'pop. regr. line'), col=c('red', 'blue'), lwd=2)
+```
+
+![](ch03-ex_files/figure-markdown_github-ascii_identifiers/Ex13-h-1.png)
+
+Estimate of *β*<sub>1</sub> is similar to, and `RSE` and adjusted *R*<sup>2</sup> are lower than, the first model due to lower variance in the data
+
+*i:*
+
+``` r
+eps <- rnorm(100, 0, sd=sqrt(0.75))
+y <- -1 + 0.5*x + eps
+
+m3 <- lm(y ~ x)
+summary(m3)
+```
+
+    ## 
+    ## Call:
+    ## lm(formula = y ~ x)
+    ## 
+    ## Residuals:
+    ##     Min      1Q  Median      3Q     Max 
+    ## -2.4692 -0.6357 -0.0745  0.5989  3.5010 
+    ## 
+    ## Coefficients:
+    ##             Estimate Std. Error t value Pr(>|t|)    
+    ## (Intercept)  -1.0285     0.1010 -10.188  < 2e-16 ***
+    ## x             0.6430     0.1058   6.075 2.37e-08 ***
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Residual standard error: 1.009 on 98 degrees of freedom
+    ## Multiple R-squared:  0.2736, Adjusted R-squared:  0.2661 
+    ## F-statistic:  36.9 on 1 and 98 DF,  p-value: 2.369e-08
+
+``` r
+plot(x, y, main="More Noise")
+abline(m3, col='red', lwd=2)
+
+df <- data.frame(x, y)
+df <- df[order(df[,1]),]
+lines(df$x, -1 + 0.5*df$x, col='blue', lwd=2, lty='dotted')
+legend("bottomright", legend=c('linear model', 'pop. regr. line'), col=c('red', 'blue'), lwd=2)
+```
+
+![](ch03-ex_files/figure-markdown_github-ascii_identifiers/Ex13-i-1.png)
+
+Estimate of *β*<sub>1</sub> is worse than, and `RSE` & adjusted *R*<sup>2</sup> are higher than, the first model due to higher variance in the data.
+
+*j:* Std errors of model coefficient estimates increase with the variance in the data and so the corresponding confidence intervals also increase with data variance.
+
+``` r
+confint(m)
+```
+
+    ##                  2.5 %     97.5 %
+    ## (Intercept) -1.0892743 -0.8830744
+    ## x            0.3651659  0.5813476
+
+``` r
+confint(m2)
+```
+
+    ##                  2.5 %     97.5 %
+    ## (Intercept) -1.0468961 -0.9219143
+    ## x            0.4153574  0.5463893
+
+``` r
+confint(m3)
+```
+
+    ##                  2.5 %     97.5 %
+    ## (Intercept) -1.2288214 -0.8281512
+    ## x            0.4329245  0.8529904
 
 ------------------------------------------------------------------------
 

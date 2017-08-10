@@ -201,18 +201,285 @@ Covariates & interactions significant at the 5% level are:
 
 ### Exercise 10
 
+*a:* Multiple regression model for `Sales`
+
+```{r Ex10-a}
+library(ISLR)
+data(Carseats)
+
+m <- lm(Sales ~ Price + Urban + US, data=Carseats)
+summary(m)
+
+par(mfrow=c(2,2))
+plot(m)
+par(mfrow=c(1,1))
+
+```
+
+*b:* Coefficient interpretation
+
+* $\beta_0$ represents baseline sales and is significant at the 5% level
+* $\beta_1$ represent effect of price on sales and is significant at the 5% level. For every $100 increase in price, sales drop by 5400 units
+* $\beta_2$ represents effect of store location on sales. Urban store location contribute to a decrease of 22 units compared to a rural store location.
+* $\beta_3$ represents effect of country location on sales. Stores located in the US have increased sales of 1200 units compared to stores located outside the US.
+
+*c:* Linear model fit above is:
+
+$Sales = 13.04 - 0.055 \cdot Price - 0.022 \cdot Urban + 1.2 \cdot US + \epsilon$
+
+Coding:
+
+* `Urban` = 1 if store is in an urban location, 0 otherwise
+* `US` = 1 if store is located in the US, 0 otherwise
+
+*d:* Null hypothesis of $H_0: \beta_j = 0$ can be rejected for $\beta_0$ (intercept), $\beta_1$ (Price) and $\beta_3$ (US) since their p-values are < 0.05
+
+*e* Smaller model
+
+```{r Ex10-e}
+m <- lm(Sales ~ Price + US, data=Carseats)
+summary(m)
+
+par(mfrow=c(2,2))
+plot(m)
+par(mfrow=c(1,1))
+
+```
+
+*f:* Comparison of model fit:
+
+* Model 1: RSS = 2.472, ad R^2 = 0.2335
+* Model 2: RSS = 2.469, adj R^2 = 0.2354
+
+Model fit is similar for both models.
+
+*g:* Approx 95% CI for model coefficients in model 2:
+
+```{r Ex10-g}
+ paste('intercept: (', round(coefficients(summary(m))[1,1] - 1.96*coefficients(summary(m))[1,2],3), ',', round(coefficients(summary(m))[1,1] + 1.96*coefficients(summary(m))[1,2],3), ')', sep='')
+
+paste('Price: (', round(coefficients(summary(m))[2,1] - 1.96*coefficients(summary(m))[2,2],3), ',', round(coefficients(summary(m))[2,1] + 1.96*coefficients(summary(m))[2,2],3), ')', sep='')
+
+paste('US: (', round(coefficients(summary(m))[3,1] - 1.96*coefficients(summary(m))[3,2],3), ',', round(coefficients(summary(m))[3,1] + 1.96*coefficients(summary(m))[3,2],3), ')', sep='')
+
+
+# 95% CI can also be calculated by:
+confint(m)
+
+```
+
+*h:* Based on model diagnostics plots:
+
+* Outliers: Observations 51, 69, 377
+* High leverage observations: 1 obs seems to have high leverage
 
 ---
 
 ### Exercise 11
 
+Generate simulated data:
+
+```{r Ex11-1}
+set.seed (1)
+x <- rnorm(100)
+y <- 2*x+rnorm(100)
+```
+
+*a:* Model without intercept
+
+```{r Ex11-a}
+mxy <- lm(y ~ x - 1)
+summary(mxy)
+coef(summary(mxy))
+```
+
+* Coefficient for `x` is significant at the 5% level. Std error is small relative to estimate => 95% CI is narrow.
+
+*b:* Model with intercept
+
+```{r Ex11-b}
+myx <- lm(x ~ y -1)
+summary(myx)
+coef(summary(myx))
+```
+
+* Coefficient for `y` is significant at the 5% level. Std error is small relative to estimate => 95% CI is narrow.
+
+*c:* $\beta$ in `mxy` should be inverse of that in `myx` but this is only approximately true. Adj R^2 for both models is the same, but RSE for `mxy` is more than double that of `myx`.
+
+*d:*
+TODO
+
+*e:* `n` is the same in both models. The t-statistic shown above is symmetric in `x` and `y`, so it will be the same whether `x` is regressed onto `y` or vice versa.
+
+*f:* T-statistic for $\beta_1$ is the same in both models below
+
+```{r Ex11-f}
+mxy <- lm(x ~ y)
+t1 <- coef(summary(mxy))[2,3]
+t1
+
+myx <- lm(y ~ x)
+t2 <- coef(summary(myx))[2,3]
+t2
+
+ abs(t1-t2) < 1e6
+```
+
 ---
 
 ### Exercise 12
 
+*a:* Estimates for $\beta$ for `Y ~ X` and `X ~ Y` are equal when denominators of (3.38) are equal (i.e., when `X = Y`)
+
+*b:* Estimates for $\beta$ in the 2 models below are different
+
+```{r Ex12-b}
+set.seed(1) 
+x <- rnorm(100)
+y <- x + rnorm(100)
+
+plot(x, y)
+
+myx <- lm(y ~ x - 1)
+summary(myx)
+
+mxy <- lm(x ~ y - 1)
+summary(mxy)
+
+```
+
+*c:* Estimates for $\beta$ in 2 models below are the same
+
+```{r Ex12-c}
+set.seed(1) 
+x <- rnorm(100)
+y <- x
+
+plot(x, y)
+
+myx <- lm(y ~ x - 1)
+summary(myx)
+
+mxy <- lm(x ~ y - 1)
+summary(mxy)
+
+```
 ---
 
 ### Exercise 13
+
+*a:* 
+
+```{r Ex13-a}
+x <- rnorm(100)
+```
+
+*b:* 
+
+```{r Ex13-b}
+eps <- rnorm(100, 0, sd=sqrt(0.25))
+```
+
+*c:* 
+
+```{r Ex13-c}
+y <- -1 + 0.5*x + eps
+```
+
+* Length of `y` is 100
+* $\beta_0 = -1$, $\beta_1 = 0.5$
+
+*d:* As expected, `y` is randomly distributed around `0.5 x`
+
+```{r Ex13-d}
+plot(x, y)
+cor(x, y)
+```
+
+*e:*
+
+```{r Ex13-e}
+m <- lm(y ~ x)
+summary(m)
+```
+Estimates of $\beta_0$ and $\beta_1$ are close to their true values. Std errors for these estimates are small. And both coefficients are statistically significant at the 5% level.
+
+*f:* 
+
+```{r Ex13-f}
+plot(x,y)
+abline(m, col='red', lwd=2)
+
+df <- data.frame(x, y)
+df <- df[order(df[,1]),]
+lines(df$x, -1 + 0.5*df$x, col='blue', lwd=2, lty='dotted')
+legend("bottomright", legend=c('linear model', 'pop. regr. line'), col=c('red', 'blue'), lwd=2)
+
+```
+
+*g:* 
+
+```{r Ex13-g}
+m1 <- lm(y ~ x + I(x^2))
+summary(m1)
+
+anova(m, m1)
+```
+
+In this model, the coefficient for $x^2$ is not significant at the 5% level. `RSE` and Adjusted $R^2$ are similar for both models. ANOVA of both models suggests that $x^2$ does not significant decrease RSS. So $x^2$ has no impact on the model.
+
+*h:* 
+
+```{r Ex13-h}
+eps <- rnorm(100, 0, sd=sqrt(0.1))
+y <- -1 + 0.5*x + eps
+
+m2 <- lm(y ~ x)
+summary(m2)
+
+plot(x, y, main="Less Noise")
+abline(m2, col='red', lwd=2)
+
+df <- data.frame(x, y)
+df <- df[order(df[,1]),]
+lines(df$x, -1 + 0.5*df$x, col='blue', lwd=2, lty='dotted')
+legend("bottomright", legend=c('linear model', 'pop. regr. line'), col=c('red', 'blue'), lwd=2)
+
+```
+
+Estimate of $\beta_1$ is similar to, and `RSE` and adjusted $R^2$ are lower than, the first model due to lower variance in the data
+
+*i:* 
+
+```{r Ex13-i}
+eps <- rnorm(100, 0, sd=sqrt(0.75))
+y <- -1 + 0.5*x + eps
+
+m3 <- lm(y ~ x)
+summary(m3)
+
+plot(x, y, main="More Noise")
+abline(m3, col='red', lwd=2)
+
+df <- data.frame(x, y)
+df <- df[order(df[,1]),]
+lines(df$x, -1 + 0.5*df$x, col='blue', lwd=2, lty='dotted')
+legend("bottomright", legend=c('linear model', 'pop. regr. line'), col=c('red', 'blue'), lwd=2)
+
+```
+
+Estimate of $\beta_1$ is worse than, and `RSE` & adjusted $R^2$ are higher than, the first model due to higher variance in the data.
+
+*j:* Std errors of model coefficient estimates increase with the variance in the data and so the corresponding confidence intervals also increase with data variance.
+
+```{r Ex13-j}
+
+confint(m)
+confint(m2)
+confint(m3)
+
+```
 
 ---
 
