@@ -1,6 +1,17 @@
 ISLR, Chapter 2
 ================
 
+-   [Exercise 1](#exercise-1)
+-   [Exercise 2](#exercise-2)
+-   [Exercise 3](#exercise-3)
+-   [Exercise 4](#exercise-4)
+-   [Exercise 5](#exercise-5)
+-   [Exercise 6](#exercise-6)
+-   [Exercise 7](#exercise-7)
+-   [Exercise 8](#exercise-8)
+-   [Exercise 9](#exercise-9)
+-   [Exercise 10](#exercise-10)
+
 ### Exercise 1
 
 *a:* A flexible model will perform better than an inflexible model due to the large number of samples available.
@@ -385,14 +396,8 @@ for (i in 1:(ncol(Boston)-1)) {
 }
 
 # Per capita crime rate vs. other covariates
-par(mfrow=c(4,4), height=6, width=6)
+par(mfrow=c(4,4))
 ```
-
-    ## Warning in par(mfrow = c(4, 4), height = 6, width = 6): "height" is not a
-    ## graphical parameter
-
-    ## Warning in par(mfrow = c(4, 4), height = 6, width = 6): "width" is not a
-    ## graphical parameter
 
 ![](ch02-ex_files/figure-markdown_github-ascii_identifiers/Ex10-2.png)
 

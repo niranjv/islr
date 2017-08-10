@@ -1,6 +1,8 @@
 ISLR, Chapter 10
 ================
 
+-   [Explore `USArrests`](#explore-usarrests)
+
 ### Explore `USArrests`
 
 ``` r

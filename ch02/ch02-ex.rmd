@@ -1,6 +1,8 @@
 ---
 title: "ISLR, Chapter 2"
-output: github_document
+output: 
+  github_document:
+    toc: true
 ---
 
 ```{r setup, include=FALSE}
@@ -286,7 +288,7 @@ for (i in 1:(ncol(Boston)-1)) {
 }
 
 # Per capita crime rate vs. other covariates
-par(mfrow=c(4,4), height=6, width=6)
+par(mfrow=c(4,4))
 for (i in 2:(ncol(Boston)-1)) {
   corr = round(cor(Boston[,1], Boston[,i]),2)
   plot(Boston[,1] ~ Boston[,i], main=paste("Corr =", corr), xlab=names(Boston)[i], ylab=names(Boston)[1])
@@ -312,7 +314,7 @@ for (i in 2:(ncol(Boston)-1)) {
 * `medv` - Crime rate tends to decrease with `medv`, with crime rates being highest when `medv < $15,000`
 
 
-```{r }
+```{r Ex10-1}
 # 0 = tract does not bound river
 # 1 = tract bounds river
 # 35 tracts bound the river
@@ -323,5 +325,3 @@ median(unique(Boston$ptratio))
 ```
 
 How to define suburb and town based on dataset? Based on `ptratio`? Without this definition, it's hard to answer parts `(g)` and `(h)`.
-
-

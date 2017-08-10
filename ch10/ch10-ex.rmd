@@ -1,6 +1,8 @@
 ---
 title: "ISLR, Chapter 10"
-output: github_document
+output: 
+  github_document:
+    toc: true
 ---
 
 ```{r setup, include=FALSE}
@@ -54,6 +56,4 @@ plot(pve, main="Fraction of variance \nexplained by each PC", xlab="PC", ylab=""
 
 plot(cumsum(pve), main="Cumulative fraction of \nvariance explained by each PC", xlab="PC", ylab="", ylim=c(0,1), pch=15, type='b')
 
-
 ```
-
