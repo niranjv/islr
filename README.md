@@ -4,6 +4,7 @@ Notes for:
 James, Witten, Hastie, Tibshirani  
 Springer; 1st ed. 2013, Corr. 7th printing 2017 edition
 
+---
 
 **Solutions to Exercises**
 
@@ -18,6 +19,7 @@ Springer; 1st ed. 2013, Corr. 7th printing 2017 edition
 * Ch 9 - Support Vector Machines
 * Ch 10 - [Unsupervised Learning](ch10/)
 
+---
 
 **Data sets in package ‘ISLR’:**
 
