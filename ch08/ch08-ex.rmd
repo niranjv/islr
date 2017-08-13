@@ -1,0 +1,203 @@
+---
+title: "ISLR, Chapter 8"
+output: 
+  github_document:
+    toc: true
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### Exercise 1
+
+---
+
+### Exercise 2
+
+---
+
+### Exercise 3
+
+---
+
+### Exercise 4
+
+---
+
+### Exercise 5
+
+---
+
+### Exercise 6
+
+---
+
+### Exercise 7
+
+The plot below shows test MSE as a function of the number of trees for the Boston housing data set. Median house value was regressed on all other covariates (`p` = 13) or a subset of them (`p/2` and `sqrt(p)`). Each line shows the test MSE for a different value of `m`, the number of covariates selected randomly for each split. `m = p` represents bagging while `m < p` represents random forests. Random forests perform better than bagging with median test MSE values of `13.05` and `12.75` for `p/2` and `sqrt(p)` compared to `16.04` for `p`. Both performed better than a single tree which had a test MSE of `26.14`)
+
+
+```{r Ex7}
+library(randomForest)
+library(tree)
+library(MASS)
+data(Boston)
+
+set.seed(1)
+
+boston.train.idx <- sample(nrow(Boston), 250)
+boston.train <- Boston[boston.train.idx,]
+boston.test <- Boston[-boston.train.idx,]
+
+# Test MSE for a single decision tree
+dt <- tree(medv ~ ., data=boston.train)
+dtp <- predict(dt, newdata=boston.test[,1:(ncol(boston.test)-1)])
+dtp.mse <- round(mean((dtp - boston.test[,14])^2),2)
+
+# Test MSE for Random Forests for different values of `m` and number of trees
+mtry.array <- c(13, round(13/2), round(sqrt(13)) )
+ntree.array <- seq(1,1000, 10)
+rf.mse <- matrix(nrow=length(mtry.array), ncol=length(ntree.array))
+i <- 1
+j <- 1
+
+for (mtry in mtry.array) {
+  for (ntree in ntree.array) {
+    rf <- randomForest(
+        medv ~ ., 
+        data=boston.train, 
+        xtest=boston.test[,1:(ncol(boston.test)-1)], 
+        ytest=boston.test[,ncol(boston.test)],
+        ntree=ntree,
+        mtry=mtry,
+        keep.forest=T
+    )
+    
+    rf.mse[[i,j]] <- mean(rf$test$mse)
+    j <- j+1
+  }
+  i <- i+1
+  j = 1
+}
+
+# Plot test MSE as a function of number of trees for each `m`
+ylim <- c(floor(min(rf.mse)), ceiling(max(rf.mse)))
+plot(ntree.array, rf.mse[1,], type='l', col='red', lwd=1.5, ylim=ylim, main="Random forests: Boston data set (medv ~.)", xlab="Number of trees", ylab="Test MSE")
+lines(ntree.array, rf.mse[2,], col='blue', lwd=1.5)
+lines(ntree.array, rf.mse[3,], col='forestgreen', lwd=1.5)
+legend("topright", legend=c('Single tree', 'm=p', 'm=p/2', 'm=sqrt(p)'), col=c("black", "red", "blue", "forestgreen"), lwd=2, lty=c('dotted', 'solid', 'solid', 'solid'))
+
+abline(h=dtp.mse, lty='dotted')
+
+```
+
+---
+
+### Exercise 8
+
+Fit regression trees to `Carseats` data using `Sales` as the response
+
+```{r Ex8}
+library(ISLR)
+data(Carseats)
+
+library(tree)
+library(randomForest)
+```
+
+*a:* Split data into training & test data sets
+
+```{r Ex8-a}
+set.seed(1)
+train.idx <- sample(nrow(Carseats), size=nrow(Carseats)/2)
+carseats.train <- Carseats[train.idx,]
+carseats.test <- Carseats[-train.idx,]
+```
+
+*b:* Fit decision tree to `Carseats` data. The resulting tree uses 6 covariates and has a test MSE of `4.15`. Plot of tree shows that `Sales` depends mainly on `ShelveLoc` and `Price`.
+
+```{r Ex8-b}
+dt <- tree(Sales ~ ., data=carseats.train)
+dtp <- predict(dt, newdata=carseats.test[,-1])
+dtp.mse <- round(mean((dtp - carseats.test$Sales)^2), 2)
+dtp.mse
+
+summary(dt)
+
+plot(dt)
+text(dt, pretty=0)
+```
+
+*c:* Cross-validation suggests that pruning the tree to 10 terminal nodes will give a simpler model without much loss of performance. This pruned tree uses 3 covariates and has a test MSE of `4.15`. Pruning the tree did not improve test MSE.
+
+```{r Ex8-c}
+
+cvt <- cv.tree(dt, FUN=prune.tree)
+plot(cvt$size, cvt$dev, type='b', lwd=2)
+
+dt10 <- prune.tree(dt, best=10)
+dt10p <- predict(dt10, newdata=carseats.test[,-1])
+dt10p.mse <- round(mean((dtp - carseats.test$Sales)^2),2)
+dt10p.mse
+
+summary(dt10)
+
+plot(dt10)
+text(dt10, pretty = 0)
+```
+
+*d:* Using bagging to fit the data with 500 trees results in a decrease in test MSE to ~ `2.5`. The most importance variables according to bagging are `Price`, `ShelveLoc`, `Age` & `CompPrice`, the same covariates used in the pruned tree above wihth 8 terminal nodes.
+
+```{r Ex8-d}
+
+bt <- randomForest(Sales ~ ., data=carseats.train, mtry=10, xtest=carseats.test[,-1], ytest=carseats.test[,1])
+plot(bt)
+
+bt.mse <- median(bt$test$mse)
+print(bt.mse)
+importance(bt, type=2)
+```
+
+*e:* Random forests with 500 trees were used to fit the data. Test MSE decreased with increase in number of covariates considered at each split with the lowest test MSE occuring when all covariates were used at each split (same as bagging). For each value of `m`, `ShelveLoc`, `Price` and `Age` were the most important covariates. 
+
+```{r Ex8-e}
+
+p <- ncol(Carseats) - 1
+mtry.array <- 1:10
+rf.mse <- rep(NaN, length(mtry.array))
+i <- 1
+
+for (mtry in mtry.array) {
+  rf <- randomForest(Sales ~ ., data=carseats.train, mtry=mtry, xtest=carseats.test[,-1], ytest=carseats.test[,1])
+  mse <- median(rf$test$mse)
+  rf.mse[[i]] <- mse
+  
+  print(importance(rf))
+  
+  i <- i + 1
+}
+
+df <- data.frame(mtry=mtry.array, mse=rf.mse)
+plot(df, type='b', lwd=2, ylab='Test MSE')
+
+
+
+```
+
+---
+
+### Exercise 9
+
+---
+
+### Exercise 10
+
+---
+
+### Exercise 11
+
+---
+
+### Exercise 12
