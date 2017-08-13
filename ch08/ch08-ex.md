@@ -374,6 +374,170 @@ plot(df, type='b', lwd=2, ylab='Test MSE')
 
 ### Exercise 9
 
+Explore the `OJ` data set
+
+*a:* Create training and test sets
+
+``` r
+library(tree)
+library(randomForest)
+library(ISLR)
+data(OJ)
+
+OJ$StoreID <- as.factor(OJ$StoreID)
+OJ$SpecialCH <- as.factor(OJ$SpecialCH)
+OJ$SpecialMM <- as.factor(OJ$SpecialMM)
+OJ$Store7 <- as.factor(OJ$Store7)
+OJ$STORE <- as.factor(OJ$STORE)
+
+set.seed(1)
+train.idx <- sample(nrow(OJ), size=800)
+oj.train <- OJ[train.idx, ]
+oj.test <- OJ[-train.idx,]
+```
+
+*b:* A decision tree fit to the data had 8 terminal nodes. Only the covariates `LoyalCH`, `PriceDiff`, `SpecialCH` and `ListPriceDiff` were used. Training misclassification error rate is `0.165 (16.5%)` and residual mean deviance is `0.7305`.
+
+``` r
+dt <- tree(Purchase ~ ., data=oj.train)
+summary(dt)
+```
+
+    ## 
+    ## Classification tree:
+    ## tree(formula = Purchase ~ ., data = oj.train)
+    ## Variables actually used in tree construction:
+    ## [1] "LoyalCH"       "PriceDiff"     "SpecialCH"     "ListPriceDiff"
+    ## Number of terminal nodes:  8 
+    ## Residual mean deviance:  0.7305 = 578.6 / 792 
+    ## Misclassification error rate: 0.165 = 132 / 800
+
+*c:* Terminal node details. Terminal node `7` contains only data points with `LoyalCH > 0.764572`. This node has a deviance of `86.14` and a fitted value of `CH`. It has `278` data points of which `96.4%` have `Purchase = CH` and `3.6%` have `Purchase = MM`.
+
+``` r
+dt
+```
+
+    ## node), split, n, deviance, yval, (yprob)
+    ##       * denotes terminal node
+    ## 
+    ##  1) root 800 1064.00 CH ( 0.61750 0.38250 )  
+    ##    2) LoyalCH < 0.508643 350  409.30 MM ( 0.27143 0.72857 )  
+    ##      4) LoyalCH < 0.264232 166  122.10 MM ( 0.12048 0.87952 )  
+    ##        8) LoyalCH < 0.0356415 57   10.07 MM ( 0.01754 0.98246 ) *
+    ##        9) LoyalCH > 0.0356415 109  100.90 MM ( 0.17431 0.82569 ) *
+    ##      5) LoyalCH > 0.264232 184  248.80 MM ( 0.40761 0.59239 )  
+    ##       10) PriceDiff < 0.195 83   91.66 MM ( 0.24096 0.75904 )  
+    ##         20) SpecialCH: 0 70   60.89 MM ( 0.15714 0.84286 ) *
+    ##         21) SpecialCH: 1 13   16.05 CH ( 0.69231 0.30769 ) *
+    ##       11) PriceDiff > 0.195 101  139.20 CH ( 0.54455 0.45545 ) *
+    ##    3) LoyalCH > 0.508643 450  318.10 CH ( 0.88667 0.11333 )  
+    ##      6) LoyalCH < 0.764572 172  188.90 CH ( 0.76163 0.23837 )  
+    ##       12) ListPriceDiff < 0.235 70   95.61 CH ( 0.57143 0.42857 ) *
+    ##       13) ListPriceDiff > 0.235 102   69.76 CH ( 0.89216 0.10784 ) *
+    ##      7) LoyalCH > 0.764572 278   86.14 CH ( 0.96403 0.03597 ) *
+
+*d:* A plot of the tree indicates that `LoyalCH` is the most important covariate and is used in the first 2 levels of the tree. Data points with `LoyalCH > 0.5` are associated with `CH` purchases while points with `LoyalCH < 0.26` are associated with `MM` purchases.
+
+``` r
+plot(dt)
+text(dt, pretty=0)
+```
+
+![](ch08-ex_files/figure-markdown_github-ascii_identifiers/Ex9-d-1.png)
+
+*e:* Predictions are thresholded at 0.8, i.e., if `P(CH) >= 0.8`, then the prediction is classified as `CH`, else `MM`. With this threshold value, the test misclassification error rate is `23.7%`.
+
+``` r
+dtp <- predict(dt, newdata=oj.test[,-1])
+dtp.class <- ifelse(dtp[,1] >= 0.8, 'CHp', 'MMp')
+cm <- table(oj.test$Purchase, dtp.class)
+print(cm) 
+```
+
+    ##     dtp.class
+    ##      CHp MMp
+    ##   CH 107  52
+    ##   MM  12  99
+
+``` r
+err <- (cm[1,2] + cm[2,1])/sum(cm)
+print(err)
+```
+
+    ## [1] 0.237037
+
+*f/g/h:* Cross-validation suggests that a tree with 5 terminal nodes is the smallest tree with the lowest misclassification error rate.
+
+``` r
+set.seed(1)
+cvt <- cv.tree(dt, FUN=prune.misclass)
+print(cvt)
+```
+
+    ## $size
+    ## [1] 8 5 2 1
+    ## 
+    ## $dev
+    ## [1] 152 152 161 306
+    ## 
+    ## $k
+    ## [1]       -Inf   0.000000   4.666667 160.000000
+    ## 
+    ## $method
+    ## [1] "misclass"
+    ## 
+    ## attr(,"class")
+    ## [1] "prune"         "tree.sequence"
+
+``` r
+plot(cvt$size, cvt$dev, type='b', lwd=2)
+```
+
+![](ch08-ex_files/figure-markdown_github-ascii_identifiers/Ex9-f-1.png)
+
+*i/j/k:* Compare pruned & unpruned trees. The training error rate for a pruned tree with 5 terminal nodes is `0.1825`, higher than that for the unpruned tree (`0.165`). The test misclassification error rate for both trees is the same (`0.237`).
+
+``` r
+dt.pruned <- prune.tree(dt, best=5)
+summary(dt.pruned)
+```
+
+    ## 
+    ## Classification tree:
+    ## snip.tree(tree = dt, nodes = 4:5)
+    ## Variables actually used in tree construction:
+    ## [1] "LoyalCH"       "ListPriceDiff"
+    ## Number of terminal nodes:  5 
+    ## Residual mean deviance:  0.7829 = 622.4 / 795 
+    ## Misclassification error rate: 0.1825 = 146 / 800
+
+``` r
+plot(dt.pruned)
+text(dt.pruned, pretty=0)
+```
+
+![](ch08-ex_files/figure-markdown_github-ascii_identifiers/Ex9-i-1.png)
+
+``` r
+dt.pruned.p <- predict(dt.pruned, newdata=oj.test[,-1])
+dtp.pruned.class <- ifelse(dt.pruned.p[,1] >= 0.8, 'CHp', 'MMp')
+cm.pruned <- table(oj.test$Purchase, dtp.pruned.class)
+print(cm.pruned) 
+```
+
+    ##     dtp.pruned.class
+    ##      CHp MMp
+    ##   CH 107  52
+    ##   MM  12  99
+
+``` r
+err.pruned <- (cm.pruned[1,2] + cm.pruned[2,1])/sum(cm.pruned)
+print(err.pruned)
+```
+
+    ## [1] 0.237037
+
 ------------------------------------------------------------------------
 
 ### Exercise 10

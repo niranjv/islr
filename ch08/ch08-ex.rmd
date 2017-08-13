@@ -182,13 +182,105 @@ for (mtry in mtry.array) {
 df <- data.frame(mtry=mtry.array, mse=rf.mse)
 plot(df, type='b', lwd=2, ylab='Test MSE')
 
-
-
 ```
 
 ---
 
 ### Exercise 9
+
+Explore the `OJ` data set
+
+
+*a:* Create training and test sets
+
+```{r Ex9-a}
+library(tree)
+library(randomForest)
+library(ISLR)
+data(OJ)
+
+OJ$StoreID <- as.factor(OJ$StoreID)
+OJ$SpecialCH <- as.factor(OJ$SpecialCH)
+OJ$SpecialMM <- as.factor(OJ$SpecialMM)
+OJ$Store7 <- as.factor(OJ$Store7)
+OJ$STORE <- as.factor(OJ$STORE)
+
+set.seed(1)
+train.idx <- sample(nrow(OJ), size=800)
+oj.train <- OJ[train.idx, ]
+oj.test <- OJ[-train.idx,]
+
+```
+
+*b:* A decision tree fit to the data had 8 terminal nodes. Only the covariates `LoyalCH`, `PriceDiff`, `SpecialCH` and `ListPriceDiff` were used. Training misclassification error rate is ` 0.165 (16.5%)` and residual mean deviance is `0.7305`.
+
+```{r Ex9-b}
+dt <- tree(Purchase ~ ., data=oj.train)
+summary(dt)
+```
+
+*c:* Terminal node details. Terminal node `7` contains only data points with `LoyalCH > 0.764572`. This node has a deviance of `86.14` and a fitted value of `CH`. It has `278` data points of which `96.4%` have `Purchase = CH` and `3.6%` have `Purchase = MM`.
+
+```{r Ex9-c}
+dt
+```
+
+*d:* A plot of the tree indicates that `LoyalCH` is the most important covariate and is used in the first 2 levels of the tree. Data points with `LoyalCH > 0.5` are associated with `CH` purchases while points with `LoyalCH < 0.26` are associated with `MM` purchases.
+
+```{r Ex9-d}
+plot(dt)
+text(dt, pretty=0)
+
+```
+
+*e:* Predictions are thresholded at 0.8, i.e., if `P(CH) >= 0.8`, then the prediction is classified as `CH`, else `MM`. With this threshold value, the test misclassification error rate is `23.7%`.
+
+```{r Ex9-e}
+
+dtp <- predict(dt, newdata=oj.test[,-1])
+dtp.class <- ifelse(dtp[,1] >= 0.8, 'CHp', 'MMp')
+cm <- table(oj.test$Purchase, dtp.class)
+print(cm) 
+
+err <- (cm[1,2] + cm[2,1])/sum(cm)
+print(err)
+
+```
+
+*f/g/h:* Cross-validation suggests that a tree with 5 terminal nodes is the smallest tree with the lowest misclassification error rate.
+
+```{r Ex9-f}
+set.seed(1)
+cvt <- cv.tree(dt, FUN=prune.misclass)
+print(cvt)
+plot(cvt$size, cvt$dev, type='b', lwd=2)
+  
+```
+
+*i/j/k:* Compare pruned & unpruned trees. The training error rate for a pruned tree with 5 terminal nodes is `0.1825`, higher than that for the unpruned tree (`0.165`). The test misclassification error rate for both trees is the same (`0.237`).
+
+```{r Ex9-i}
+
+dt.pruned <- prune.tree(dt, best=5)
+summary(dt.pruned)
+
+plot(dt.pruned)
+text(dt.pruned, pretty=0)
+
+
+dt.pruned.p <- predict(dt.pruned, newdata=oj.test[,-1])
+dtp.pruned.class <- ifelse(dt.pruned.p[,1] >= 0.8, 'CHp', 'MMp')
+cm.pruned <- table(oj.test$Purchase, dtp.pruned.class)
+print(cm.pruned) 
+
+err.pruned <- (cm.pruned[1,2] + cm.pruned[2,1])/sum(cm.pruned)
+print(err.pruned)
+
+
+
+```
+
+
 
 ---
 
