@@ -353,13 +353,65 @@ bt <- randomForest(Salary ~ ., data=h2.train, mtry=19, xtest=h2.test[,-19], ytes
 bt
 ```
 
-
-
-
-
 ---
 
 ### Exercise 11
+
+Analyze the `Caravan` data set
+
+*a:* Create training and test data sets
+
+```{r Ex11-a}
+library(gbm)
+library(ISLR)
+data(Caravan)
+
+set.seed(1)
+
+train.idx <- 1:1000
+caravan.train <- Caravan[train.idx,]
+caravan.test <- Caravan[-train.idx,]
+
+PurchaseBinary <- ifelse(Caravan$Purchase == 'Yes', 1, 0)
+PurchaseBinary.train <- PurchaseBinary[train.idx]
+PurchaseBinary.test <- PurchaseBinary[-train.idx]
+```
+
+*b:* When a boosted model is fit to the data, `PPERSAUT`, `MKOOPKLA` & `MOPLHOOG` were the most influential covariates.
+
+```{r Ex11-b}
+
+bt <- gbm(PurchaseBinary.train ~ .-Purchase, data=caravan.train, distribution="bernoulli", n.trees=1000, shrinkage=0.01)
+summary(bt)
+```
+
+*c:*
+
+```{r Ex11-c}
+
+btp <- predict(bt, newdata=caravan.test[,-86], n.trees=1000)
+
+# convert prediction log odds to probability (for bernoulli distribution only)
+odds <- exp(btp)
+p <- odds/(1+odds)
+hist(p, col='grey', breaks=50)
+
+# Confusion matrix for purchase
+PurchaseBinary.p <- ifelse(p > 0.2, 1, 0)
+cm <- table(PurchaseBinary.test, PurchaseBinary.p)
+cm
+
+# Misclassification error
+round((cm[1,2] + cm[2,1])/sum(cm),2)
+
+# Fraction of people predicted to make a purchase who actually do
+round(cm[2,2]/sum(cm[,2]),2)
+
+```
+
+**Comparison to kNN & Logistic Regression:**
+
+TODO
 
 ---
 

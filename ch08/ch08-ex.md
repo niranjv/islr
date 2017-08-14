@@ -670,6 +670,174 @@ bt
 
 ### Exercise 11
 
+Analyze the `Caravan` data set
+
+*a:* Create training and test data sets
+
+``` r
+library(gbm)
+library(ISLR)
+data(Caravan)
+
+set.seed(1)
+
+train.idx <- 1:1000
+caravan.train <- Caravan[train.idx,]
+caravan.test <- Caravan[-train.idx,]
+
+PurchaseBinary <- ifelse(Caravan$Purchase == 'Yes', 1, 0)
+PurchaseBinary.train <- PurchaseBinary[train.idx]
+PurchaseBinary.test <- PurchaseBinary[-train.idx]
+```
+
+*b:* When a boosted model is fit to the data, `PPERSAUT`, `MKOOPKLA` & `MOPLHOOG` were the most influential covariates.
+
+``` r
+bt <- gbm(PurchaseBinary.train ~ .-Purchase, data=caravan.train, distribution="bernoulli", n.trees=1000, shrinkage=0.01)
+```
+
+    ## Warning in gbm.fit(x, y, offset = offset, distribution = distribution, w =
+    ## w, : variable 50: PVRAAUT has no variation.
+
+    ## Warning in gbm.fit(x, y, offset = offset, distribution = distribution, w =
+    ## w, : variable 71: AVRAAUT has no variation.
+
+``` r
+summary(bt)
+```
+
+![](ch08-ex_files/figure-markdown_github-ascii_identifiers/Ex11-b-1.png)
+
+    ##               var     rel.inf
+    ## PPERSAUT PPERSAUT 14.63504779
+    ## MKOOPKLA MKOOPKLA  9.47091649
+    ## MOPLHOOG MOPLHOOG  7.31457416
+    ## MBERMIDD MBERMIDD  6.08651965
+    ## PBRAND     PBRAND  4.66766122
+    ## MGODGE     MGODGE  4.49463264
+    ## ABRAND     ABRAND  4.32427755
+    ## MINK3045 MINK3045  4.17590619
+    ## MOSTYPE   MOSTYPE  2.86402583
+    ## PWAPART   PWAPART  2.78191075
+    ## MAUT1       MAUT1  2.61929152
+    ## MBERARBG MBERARBG  2.10480508
+    ## MSKA         MSKA  2.10185152
+    ## MAUT2       MAUT2  2.02172510
+    ## MSKC         MSKC  1.98684345
+    ## MINKGEM   MINKGEM  1.92122708
+    ## MGODPR     MGODPR  1.91777542
+    ## MBERHOOG MBERHOOG  1.80710618
+    ## MGODOV     MGODOV  1.78693913
+    ## PBYSTAND PBYSTAND  1.57279593
+    ## MSKB1       MSKB1  1.43551401
+    ## MFWEKIND MFWEKIND  1.37264255
+    ## MRELGE     MRELGE  1.20805179
+    ## MOPLMIDD MOPLMIDD  0.93791970
+    ## MINK7512 MINK7512  0.92590720
+    ## MINK4575 MINK4575  0.91745993
+    ## MGODRK     MGODRK  0.90765539
+    ## MFGEKIND MFGEKIND  0.85745374
+    ## MZPART     MZPART  0.82531066
+    ## MRELOV     MRELOV  0.80731252
+    ## MINKM30   MINKM30  0.74126812
+    ## MHKOOP     MHKOOP  0.73690793
+    ## MZFONDS   MZFONDS  0.71638323
+    ## MAUT0       MAUT0  0.71388052
+    ## MHHUUR     MHHUUR  0.59287247
+    ## APERSAUT APERSAUT  0.58056986
+    ## MOSHOOFD MOSHOOFD  0.58029563
+    ## MSKB2       MSKB2  0.53885275
+    ## PLEVEN     PLEVEN  0.53052444
+    ## MINK123M MINK123M  0.50660603
+    ## MBERARBO MBERARBO  0.48596479
+    ## MGEMOMV   MGEMOMV  0.47614792
+    ## PMOTSCO   PMOTSCO  0.46163590
+    ## MSKD         MSKD  0.39735297
+    ## MBERBOER MBERBOER  0.36417546
+    ## MGEMLEEF MGEMLEEF  0.26166240
+    ## MFALLEEN MFALLEEN  0.21448118
+    ## MBERZELF MBERZELF  0.15906143
+    ## MOPLLAAG MOPLLAAG  0.05263665
+    ## MAANTHUI MAANTHUI  0.03766014
+    ## MRELSA     MRELSA  0.00000000
+    ## PWABEDR   PWABEDR  0.00000000
+    ## PWALAND   PWALAND  0.00000000
+    ## PBESAUT   PBESAUT  0.00000000
+    ## PVRAAUT   PVRAAUT  0.00000000
+    ## PAANHANG PAANHANG  0.00000000
+    ## PTRACTOR PTRACTOR  0.00000000
+    ## PWERKT     PWERKT  0.00000000
+    ## PBROM       PBROM  0.00000000
+    ## PPERSONG PPERSONG  0.00000000
+    ## PGEZONG   PGEZONG  0.00000000
+    ## PWAOREG   PWAOREG  0.00000000
+    ## PZEILPL   PZEILPL  0.00000000
+    ## PPLEZIER PPLEZIER  0.00000000
+    ## PFIETS     PFIETS  0.00000000
+    ## PINBOED   PINBOED  0.00000000
+    ## AWAPART   AWAPART  0.00000000
+    ## AWABEDR   AWABEDR  0.00000000
+    ## AWALAND   AWALAND  0.00000000
+    ## ABESAUT   ABESAUT  0.00000000
+    ## AMOTSCO   AMOTSCO  0.00000000
+    ## AVRAAUT   AVRAAUT  0.00000000
+    ## AAANHANG AAANHANG  0.00000000
+    ## ATRACTOR ATRACTOR  0.00000000
+    ## AWERKT     AWERKT  0.00000000
+    ## ABROM       ABROM  0.00000000
+    ## ALEVEN     ALEVEN  0.00000000
+    ## APERSONG APERSONG  0.00000000
+    ## AGEZONG   AGEZONG  0.00000000
+    ## AWAOREG   AWAOREG  0.00000000
+    ## AZEILPL   AZEILPL  0.00000000
+    ## APLEZIER APLEZIER  0.00000000
+    ## AFIETS     AFIETS  0.00000000
+    ## AINBOED   AINBOED  0.00000000
+    ## ABYSTAND ABYSTAND  0.00000000
+
+*c:*
+
+``` r
+btp <- predict(bt, newdata=caravan.test[,-86], n.trees=1000)
+
+# convert prediction log odds to probability (for bernoulli distribution only)
+odds <- exp(btp)
+p <- odds/(1+odds)
+hist(p, col='grey', breaks=50)
+```
+
+![](ch08-ex_files/figure-markdown_github-ascii_identifiers/Ex11-c-1.png)
+
+``` r
+# Confusion matrix for purchase
+PurchaseBinary.p <- ifelse(p > 0.2, 1, 0)
+cm <- table(PurchaseBinary.test, PurchaseBinary.p)
+cm
+```
+
+    ##                    PurchaseBinary.p
+    ## PurchaseBinary.test    0    1
+    ##                   0 4410  123
+    ##                   1  256   33
+
+``` r
+# Misclassification error
+round((cm[1,2] + cm[2,1])/sum(cm),2)
+```
+
+    ## [1] 0.08
+
+``` r
+# Fraction of people predicted to make a purchase who actually do
+round(cm[2,2]/sum(cm[,2]),2)
+```
+
+    ## [1] 0.21
+
+**Comparison to kNN & Logistic Regression:**
+
+TODO
+
 ------------------------------------------------------------------------
 
 ### Exercise 12
