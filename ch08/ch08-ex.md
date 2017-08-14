@@ -542,6 +542,130 @@ print(err.pruned)
 
 ### Exercise 10
 
+Analyze `Hitters` data set with boosting
+
+*a:* Remove players with no salary info
+
+``` r
+library(gbm)
+```
+
+    ## Loading required package: survival
+
+    ## Loading required package: lattice
+
+    ## Loading required package: splines
+
+    ## Loading required package: parallel
+
+    ## Loaded gbm 2.1.3
+
+``` r
+library(randomForest)
+library(ISLR)
+data(Hitters)
+
+h2 <- Hitters[! is.na(Hitters$Salary), ]
+h2$Salary <- log(h2$Salary)
+```
+
+*b:* Create training and test data sets
+
+``` r
+train.idx <- 1:200
+h2.train <- h2[train.idx,]
+h2.test <- h2[-train.idx,]
+```
+
+*c/d:* Boosting on data set
+
+``` r
+set.seed(1)
+
+num.trees <- 1000
+shrinkage.array <- seq(0.001, 1, length.out=100)
+train.mse <- rep(NaN, length(shrinkage.array))
+test.mse <- rep(NaN, length(shrinkage.array))
+i <- 1
+
+for (s in shrinkage.array) {
+  h2.boost <- gbm(Salary ~ ., data=h2.train, distribution="gaussian", n.trees=num.trees, interaction.depth=5, shrinkage=s)
+  train.mse[[i]] <- h2.boost$train.error[num.trees]
+  
+  h2p <- predict(h2.boost, newdata=h2.test[-19], n.trees=num.trees)
+  test.mse[[i]] <- mean((h2p - h2.test$Salary)^2)
+  
+  i <- i + 1
+}
+
+# Min test MSE
+paste("Boosting: Test MSE = ", round(min(test.mse),2), sep='')
+```
+
+    ## [1] "Boosting: Test MSE = 0.23"
+
+``` r
+# plot train & test MSE as a function of shrinkage
+ylim <- c(0, round(max(train.mse, test.mse), 2))
+plot(shrinkage.array, train.mse, type='l', xlab='Shrinkage', ylab='MSE', ylim=ylim, col='blue')
+lines(shrinkage.array, test.mse, type='l', col='red')
+lines(lowess(shrinkage.array, test.mse), lwd=2, col='red')
+legend("topleft", legend=c("Train MSE", "Test MSE"), col=c("blue", "red"), lwd=2)
+```
+
+![](ch08-ex_files/figure-markdown_github-ascii_identifiers/Ex10-c-1.png)
+
+*e*: TODO
+
+*f:* The most important covariates in the boosted model are `CAtBat` and `Assists`, followed by `PutOuts`, `AtBat` and `Errors`.
+
+``` r
+par(mar=par()$mar + 1)
+summary(h2.boost, las=2)
+```
+
+![](ch08-ex_files/figure-markdown_github-ascii_identifiers/Ex10-f-1.png)
+
+    ##                 var    rel.inf
+    ## CAtBat       CAtBat 23.0774773
+    ## PutOuts     PutOuts  9.8514618
+    ## AtBat         AtBat  7.7957202
+    ## Walks         Walks  7.2241743
+    ## Assists     Assists  6.8467051
+    ## CHmRun       CHmRun  5.9464636
+    ## RBI             RBI  5.4569782
+    ## Runs           Runs  5.3796579
+    ## Errors       Errors  4.9632262
+    ## CWalks       CWalks  4.7211590
+    ## CRuns         CRuns  3.9235529
+    ## CRBI           CRBI  2.8832017
+    ## Years         Years  2.7305724
+    ## HmRun         HmRun  2.5883836
+    ## Hits           Hits  2.3375916
+    ## Division   Division  2.2427539
+    ## CHits         CHits  1.4772775
+    ## NewLeague NewLeague  0.3014485
+    ## League       League  0.2521943
+
+*g:* With a bagged model, the test MSE is `0.23`. So bagging seems to perform better than boosting for this data set. A random forests model with `mtry=6` had a slightly lower test MSE of `0.22`.
+
+``` r
+bt <- randomForest(Salary ~ ., data=h2.train, mtry=19, xtest=h2.test[,-19], ytest=h2.test[,19], keep.forest=TRUE)
+bt
+```
+
+    ## 
+    ## Call:
+    ##  randomForest(formula = Salary ~ ., data = h2.train, mtry = 19,      xtest = h2.test[, -19], ytest = h2.test[, 19], keep.forest = TRUE) 
+    ##                Type of random forest: regression
+    ##                      Number of trees: 500
+    ## No. of variables tried at each split: 19
+    ## 
+    ##           Mean of squared residuals: 0.2188003
+    ##                     % Var explained: 73.7
+    ##                        Test set MSE: 0.23
+    ##                     % Var explained: 64.44
+
 ------------------------------------------------------------------------
 
 ### Exercise 11
