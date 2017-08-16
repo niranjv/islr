@@ -9,51 +9,69 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-### Explore `USArrests`
+### Exercise 1
 
-```{r USArrests}
+---
 
-# Columns
-# 
-# Murder - Murder arrests (per 100,000)
-# Assault -	Assault arrests (per 100,000)
-# UrbanPop - Percent urban population
-# Rape - Rape arrests (per 100,000)
+### Exercise 2
 
-dim(USArrests)
-names(USArrests)
+---
 
-# Crime rates across all states - mean & sd
-apply(USArrests, 2, mean)
-apply(USArrests, 2, var)
+### Exercise 3
 
-# UrbanPop is not comparable to other covariates which are measured per 100,000 individuals
-# UrbanPop also has very high variance compared to other covariates and will dominate the PCs
-# Solution is to scale all covariates to have mean 0 and variance 1
-pairs(USArrests, lower.panel=NULL)
+---
 
-# mean-centering is performed by default
-# scale=TRUE => scale to have sd = 1
-pr.out <- prcomp(USArrests, scale=TRUE) 
-dim(pr.out)
-names(pr.out)
-# [1] "sdev"     "rotation" "center"   "scale"    "x"    
-# 
-# rotation = matrix of PC loadings, i.e., weights by which each covariate must be multiplied to get PC
-# x = PC score vectors as columns, i.e., rotation x data
+### Exercise 4
 
-biplot(pr.out, scale=0)
+---
 
-# Variance explained by each PC
-v = pr.out$sdev^2
-v
+### Exercise 5
 
-# Fraction of variance explained by each PC
-pve = v/sum(v)
+---
 
-par(mfrow=c(1,2))
-plot(pve, main="Fraction of variance \nexplained by each PC", xlab="PC", ylab="", ylim=c(0,1), pch=15, type='b')
+### Exercise 6
 
-plot(cumsum(pve), main="Cumulative fraction of \nvariance explained by each PC", xlab="PC", ylab="", ylim=c(0,1), pch=15, type='b')
+---
+
+### Exercise 7
+
+
+```{r Ex7, fig.width=6, fig.height=6}
+data(USArrests)
+
+# Center observations, not covariates
+us.scaled <- scale(t(USArrests))
+
+# Euclidean distance
+eud <- dist(t(us.scaled))
+
+# Correlation distance
+cord <- as.dist(1-cor(us.scaled))
+
+# Plot shows strong non-linear relationship between the 2 sets of values
+plot(eud, cord, main="USArrests: distance between scaled observations", xlab="Euclidean distance", ylab="Correlation distance")
+lines(lowess(eud, cord), lwd=2, col='red')
+abline(lm(cord~eud), col='blue', lwd=2)
+legend("bottomright", legend=c("linear model", "lowess"), col=c("blue", "red"), lwd=2)
+
+# Their correlation is also very high
+cor(eud, cord)
 
 ```
+
+---
+
+### Exercise 8
+
+---
+
+### Exercise 9
+
+---
+
+### Exercise 10
+
+---
+
+### Exercise 11
+
