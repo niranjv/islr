@@ -42,13 +42,13 @@ ISLR, Chapter 10
 ``` r
 data(USArrests)
 
-# Center observations, not covariates
+# Transpose data set to center observations, not covariates
 us.scaled <- scale(t(USArrests))
 
-# Euclidean distance
+# Euclidean distance between states
 eud <- dist(t(us.scaled))
 
-# Correlation distance
+# Correlation distance between states
 cord <- as.dist(1-cor(us.scaled))
 
 # Plot shows strong non-linear relationship between the 2 sets of values
@@ -61,7 +61,7 @@ legend("bottomright", legend=c("linear model", "lowess"), col=c("blue", "red"), 
 ![](ch10-ex_files/figure-markdown_github-ascii_identifiers/Ex7-1.png)
 
 ``` r
-# Their correlation is also very high
+# Correlation between the 2 distances is also very high
 cor(eud, cord)
 ```
 
@@ -70,6 +70,26 @@ cor(eud, cord)
 ------------------------------------------------------------------------
 
 ### Exercise 8
+
+``` r
+us.scaled <- scale(USArrests)
+
+# PVE from output of prcomp
+pc <- prcomp(us.scaled, center=TRUE, scale=TRUE)
+pve1 <- summary(pc)$importance[2,]
+
+# PVE from Eq. 10.8
+x <- us.scaled %*% pc$rotation
+component_var <- apply(x^2, 2, sum)
+total_var <- sum(apply(us.scaled^2, 2, sum))
+pve2 <- component_var/total_var
+
+# Both sets of values are equal up to roundoff error
+pve1-pve2 < 10^-5
+```
+
+    ##  PC1  PC2  PC3  PC4 
+    ## TRUE TRUE TRUE TRUE
 
 ------------------------------------------------------------------------
 
