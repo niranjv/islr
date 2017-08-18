@@ -23,6 +23,24 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ### Exercise 4
 
+*a:* Euclidean distance between `{1,2,3}` and `{4,5}` is:
+
+* `(1,2): 1`
+* `(1,5): 4` 
+* `(2,4): 2` 
+* `(2,5): 3` 
+* `(3,4): 1` 
+* `(3,5): 2` 
+
+
+* Complete linkage fusion (= max of above distances) happens at a height of `4`
+* Single linkage fusion (= min of above distances) happens at a height of `1`
+
+
+So complete linkage fusion occurs higher than single linkage fusion.
+
+*b:* Euclidean distance between clusters `{5}` and `{6}` is `1`. So fusion for both linkages will happen at the same height. Results from various linkages will differ only when a cluster has more than 1 point.
+
 ---
 
 ### Exercise 5
