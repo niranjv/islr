@@ -83,7 +83,7 @@ centroids = update_centroids(clusters)
 
 *e*: Repeat until clusters stabilize
 
-```{r Ex3e}
+```{r Ex3e, fig.width=6, fig.height=6}
 
 old_centroids <- initial_centroids
 

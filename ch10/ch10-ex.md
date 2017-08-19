@@ -57,12 +57,12 @@ print(initial_centroids)
 ```
 
     ## [[1]]
-    ##   x1   x2 
-    ## 3.00 2.75 
+    ##  x1  x2 
+    ## 4.0 1.5 
     ## 
     ## [[2]]
     ##  x1  x2 
-    ## 2.5 1.5
+    ## 0.5 4.0
 
 *d:* Assign points to nearest centroid
 
@@ -106,8 +106,6 @@ while(! identical(centroids, old_centroids)) {
 }
 ```
 
-    ## [1] "update_clusters"
-    ## [1] "update_centroids"
     ## [1] "update_clusters"
     ## [1] "update_centroids"
 
