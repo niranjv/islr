@@ -29,7 +29,11 @@ ISLR, Chapter 10
 x1 <- c(1,1,0,5,6,4)
 x2 <- c(4,3,4,1,2,0)
 df <- data.frame(x1=x1, x2=x2)
+
+plot(x1, x2)
 ```
+
+![](ch10-ex_files/figure-markdown_github-ascii_identifiers/Ex3a-1.png)
 
 *b:* Randomly assign cluster labels to data points
 
@@ -57,12 +61,12 @@ print(initial_centroids)
 ```
 
     ## [[1]]
-    ## x1 x2 
-    ##  5  1 
+    ##       x1       x2 
+    ## 3.333333 1.666667 
     ## 
     ## [[2]]
-    ##   x1   x2 
-    ## 1.75 3.00
+    ##       x1       x2 
+    ## 2.333333 3.000000
 
 *d:* Assign points to nearest centroid
 
@@ -141,9 +145,9 @@ So complete linkage fusion occurs higher than single linkage fusion.
 
 ### Exercise 5
 
--   Left: Number of items of purchased: K-means will clusters socks and computer purchases separately since the difference in the number of items purchased is large
--   Center: Number of items scaled by stdev: K-means will clusters the purchase of 0 computers separately from all other purchases since the values of all others purchases are similar in comparison to the purchase of 0 computers.
--   Right: Number of dollars spent: K-means will cluster socks and computer purchases separately since the difference in the price of the items is large.
+-   **Left:** Number of items of purchased: K-means will clusters socks and computer purchases separately since the difference in the number of items purchased is large
+-   **Center:** Number of items scaled by stdev: K-means will clusters the purchase of 0 computers separately from all other purchases since the values of all others purchases are similar in comparison to the purchase of 0 computers.
+-   **Right:** Number of dollars spent: K-means will cluster socks and computer purchases separately since the difference in the price of the items is large.
 
 ------------------------------------------------------------------------
 
