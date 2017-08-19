@@ -23,6 +23,102 @@ ISLR, Chapter 10
 
 ### Exercise 3
 
+*a:* Create and plot simulated data set
+
+``` r
+x1 <- c(1,1,0,5,6,4)
+x2 <- c(4,3,4,1,2,0)
+df <- data.frame(x1=x1, x2=x2)
+```
+
+*b:* Randomly assign cluster labels to data points
+
+``` r
+initial_assignments <- sample(c(1,2), size=6, replace=T)
+```
+
+*c:* Calculate centroid for each cluster
+
+``` r
+update_centroids <- function(clusters) {
+  
+  c1_centroid <- apply(clusters[[1]], 2, mean)
+  c2_centroid <- apply(clusters[[2]], 2, mean)
+  
+  return(list(c1_centroid, c2_centroid))
+}
+
+c1 <- df[initial_assignments == 1,]
+c2 <- df[initial_assignments == 2,]
+initial_clusters <- list(c1, c2)
+
+initial_centroids <- update_centroids(initial_clusters)
+print(initial_centroids)
+```
+
+    ## [[1]]
+    ##   x1   x2 
+    ## 3.00 2.75 
+    ## 
+    ## [[2]]
+    ##  x1  x2 
+    ## 2.5 1.5
+
+*d:* Assign points to nearest centroid
+
+``` r
+update_clusters <- function(n, centroids) {
+  
+  c1_points <- data.frame()
+  c2_points <- data.frame()
+  
+  for (i in 1:n) {
+    d1 <- dist(rbind(df[i,], centroids[[1]]))
+    d2 <- dist(rbind(df[i,], centroids[[2]]))
+    
+    if (d1 <= d2) {
+      c1_points <- rbind(c1_points, df[i,])
+    } else {
+      c2_points <- rbind(c2_points, df[i,])
+    }
+  }
+  
+  return(list(c1_points, c2_points))
+}
+
+clusters = update_clusters(nrow(df), initial_centroids)
+centroids = update_centroids(clusters)
+```
+
+*e*: Repeat until clusters stabilize
+
+``` r
+old_centroids <- initial_centroids
+
+while(! identical(centroids, old_centroids)) {
+  old_centroids <- centroids
+  
+  print("update_clusters")
+  clusters <- update_clusters(nrow(df), centroids)
+  
+  print("update_centroids")
+  centroids <- update_centroids(clusters)
+}
+```
+
+    ## [1] "update_clusters"
+    ## [1] "update_centroids"
+    ## [1] "update_clusters"
+    ## [1] "update_centroids"
+
+``` r
+plot(x1, x2, cex=2)
+points(centroids[[1]][1], centroids[[1]][2], col='red', pch=16)
+points(centroids[[2]][1], centroids[[2]][2], col='blue', pch=16)
+```
+
+![](ch10-ex_files/figure-markdown_github-ascii_identifiers/Ex3e-1.png)
+
 ------------------------------------------------------------------------
 
 ### Exercise 4

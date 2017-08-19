@@ -19,6 +19,90 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ### Exercise 3
 
+*a:* Create and plot simulated data set
+```{r Ex3a}
+x1 <- c(1,1,0,5,6,4)
+x2 <- c(4,3,4,1,2,0)
+df <- data.frame(x1=x1, x2=x2)
+```
+
+*b:* Randomly assign cluster labels to data points
+
+```{r Ex3b}
+initial_assignments <- sample(c(1,2), size=6, replace=T)
+```
+
+*c:* Calculate centroid for each cluster
+
+```{r Ex3c} 
+
+update_centroids <- function(clusters) {
+  
+  c1_centroid <- apply(clusters[[1]], 2, mean)
+  c2_centroid <- apply(clusters[[2]], 2, mean)
+  
+  return(list(c1_centroid, c2_centroid))
+}
+
+c1 <- df[initial_assignments == 1,]
+c2 <- df[initial_assignments == 2,]
+initial_clusters <- list(c1, c2)
+
+initial_centroids <- update_centroids(initial_clusters)
+print(initial_centroids)
+
+```
+
+*d:* Assign points to nearest centroid
+
+```{r Ex3d}
+
+update_clusters <- function(n, centroids) {
+  
+  c1_points <- data.frame()
+  c2_points <- data.frame()
+  
+  for (i in 1:n) {
+    d1 <- dist(rbind(df[i,], centroids[[1]]))
+    d2 <- dist(rbind(df[i,], centroids[[2]]))
+    
+    if (d1 <= d2) {
+      c1_points <- rbind(c1_points, df[i,])
+    } else {
+      c2_points <- rbind(c2_points, df[i,])
+    }
+  }
+  
+  return(list(c1_points, c2_points))
+}
+
+clusters = update_clusters(nrow(df), initial_centroids)
+centroids = update_centroids(clusters)
+
+```
+
+*e*: Repeat until clusters stabilize
+
+```{r Ex3e}
+
+old_centroids <- initial_centroids
+
+while(! identical(centroids, old_centroids)) {
+  old_centroids <- centroids
+  
+  print("update_clusters")
+  clusters <- update_clusters(nrow(df), centroids)
+  
+  print("update_centroids")
+  centroids <- update_centroids(clusters)
+}
+
+plot(x1, x2, cex=2)
+points(centroids[[1]][1], centroids[[1]][2], col='red', pch=16)
+points(centroids[[2]][1], centroids[[2]][2], col='blue', pch=16)
+
+```
+
 ---
 
 ### Exercise 4
